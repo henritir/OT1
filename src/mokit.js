@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-const Basic = () => {
+const Mokit = () => {
 
     const [haku, setHaku] = useState("a");
     const [mokit, setMokit] = useState([]);
@@ -36,4 +36,4 @@ const Basic = () => {
 
 }
 
-export { Basic, };
+export { Mokit, };
