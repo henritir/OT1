@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
-import {Basic} from './perus';
+import {Basic} from './mokit';
+import { Laskutus } from './laskutus';
+import { Raportit } from './raportit';
 import {Link, NavLink, Routes, Route, BrowserRouter as Router, useNavigate, useLocation, Navigate} from 'react-router-dom'
+
 const RouteAppLuento = (props) => {
     const [user, setUser] = useState(null);
 
@@ -13,11 +16,13 @@ const RouteAppLuento = (props) => {
             {
                 //NavLink on sama kuin Link, NavLink:iin voi  liittää tyylimäärittelyn
             }
-            <NavLink to="/">Home</NavLink>
-            <Link to="/news">News</Link>
-            <Link to="/options">Options</Link>
-            <Link to="/info">Info</Link>
-            <Link to="/basic">Basic</Link>
+            <NavLink to="/">Etusivu</NavLink>
+            <Link to="/news">Alueet</Link>
+            <Link to="/options">Palvelut</Link>
+            <Link to="/basic">Mökit</Link>
+            <Link to="/info">Asiakkaat</Link>
+            <Link to="/laskutus">Laskutus</Link>
+            <Link to="/raportit">Raportit</Link>
 
             <Routes>
                 {
@@ -37,6 +42,9 @@ const RouteAppLuento = (props) => {
                 }/>
                 <Route path="/basic" element={<Basic />}/> 
                 <Route path="/info" element={<Info />}/> 
+                <Route path="/laskutus" element={<Laskutus />}/> 
+                <Route path="/raportit" element={<Raportit />}/> 
+
 
                 <Route path="*" 
                     element={<Navigate to="/" />} />
