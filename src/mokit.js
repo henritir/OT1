@@ -7,6 +7,8 @@ const Mokit = () => {
     const [numero, setNumero] = useState("");
     const [spvm, setSpvm] = useState("");
     const [lpvm, setLpvm] = useState("");
+    const [paikat, setPaikat] = useState([]);
+    const [paikka, setPaikka] = useState("");
     
 
 
@@ -38,11 +40,24 @@ const Mokit = () => {
             console.log(varatut);
             let mokit = [];
             c.mokit.map((a,i)=> {
-                if(!varatut.includes(a.mokki_id)){
-                    mokit.push(a);
+                if(paikka != ""){
+                    if(!varatut.includes(a.mokki_id) && paikka == a.toimipaikka){
+                        mokit.push(a);
+                    }
                 }
+                
+                else {
+
+                    if(!varatut.includes(a.mokki_id)){
+                        mokit.push(a);
+                    }
+                }
+
             });
+            console.log(paikka);
             setMokit(mokit);
+            setPaikat(c.paikat);
+
         }
         fetchmokit();
         
@@ -53,11 +68,6 @@ const Mokit = () => {
         setHaku(!haku);
     }
 
-    const taulu = () => {
-        
-    }
-
-
 
     return (
         <div>
@@ -66,11 +76,21 @@ const Mokit = () => {
                 <input onChange={(e)=>setNumero(e.target.value)}>
                 </input>
             </label>
-            <label>Saapumispvm
+            <label>Paikka
+                <select onChange={(e)=>setPaikka(e.target.value)}>
+                    <option value="">--valitse--</option>
+                    {paikat.map((a,i)=>{
+                        return(
+                            <option key={i} value={a.toimipaikka}>{a.toimipaikka}</option>
+                        )
+                    })}
+                </select>
+            </label>
+            <label>Saapumispvm(vvvv-kk-pp)
                 <input onChange={(e)=>setSpvm(e.target.value)}>
                 </input>
             </label>
-            <label>Lähtöpvm
+            <label>Lähtöpvm(vvvv-kk-pp)
                 <input onChange={(e)=> setLpvm(e.target.value)}>
                 </input>
             </label>
@@ -81,6 +101,7 @@ const Mokit = () => {
                     <th>ID</th>
                     <th>Nimi</th>
                     <th>POSTINRO</th>
+                    <th>Toimipaikka</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -90,6 +111,8 @@ const Mokit = () => {
                     <td>{a.mokki_id}</td>
                     <td>{a.mokkinimi}</td>
                     <td>{a.postinro}</td>
+                    <td>{a.toimipaikka}</td>
+                    <td><button>Varaa</button></td>
                 </tr>
             )
         })}

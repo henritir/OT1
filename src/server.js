@@ -34,10 +34,11 @@ var connection = mysql.createConnection({
 // REST api -> GET 
 app.get('/api/vn', (request, response) => {
 
-    const query = "SELECT mokki.mokki_id, mokki.mokkinimi, mokki.postinro FROM mokki WHERE 1=1";
+    const query = "SELECT m.mokki_id, m.mokkinimi, m.postinro, p.toimipaikka as toimipaikka FROM mokki m join posti p on p.postinro = m.postinro WHERE 1=1";
     
 
     let mokit = [];
+    let varaukset = [];
 console.log("asiakas alkaa")
     connection.query(query, function(error, result, fields){
         if ( error )
@@ -67,14 +68,28 @@ console.log("asiakas alkaa")
                 {
                     //console.log("R (ASTY):" , result);
                     console.log("asiakastyyppi loppuu:", mokit);
-                    response.statusCode = 200;   
-                    response.json({mokit : mokit, varaukset: result});
+                    response.statusCode = 200;
+                    varaukset = result;
                 }
             });
 
-            
-        
+            connection.query("SELECT DISTINCT toimipaikka from posti", function(error, result, fields){
+                if ( error )
+                {
+                    console.log("Virhe", error);
+                    response.statusCode = 400;
+                    response.json({status : "NOT OK", msg : "Tekninen virhe!"});
+                }
+                else
+                {
+                    //console.log("R (ASTY):" , result);
+                    console.log("asiakastyyppi loppuu:", mokit);
+                    response.statusCode = 200;   
+                    response.json({mokit : mokit, varaukset: varaukset, paikat : result});
+                }
+            });
 
+        
         }
     });
 
