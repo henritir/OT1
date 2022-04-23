@@ -27,59 +27,58 @@ var connection = mysql.createConnection({
     host : 'localhost',
     user : 'root',      // ÄLÄ KOSKAAN käytä root:n tunnusta tuotannossa
     password : 'root',
-    database : 'customer',
+    database : 'vn',
     dateStrings : true
 });
 
 // REST api -> GET 
-app.get('/api/customer', (req,res) => {
-    // localhost:3000/api/customer
+app.get('/api/vn', (request, response) => {
+
+    const query = "SELECT mokki.mokki_id, mokki.mokkinimi, mokki.postinro FROM mokki WHERE 1=1";
     
-    console.log("/asiakas. REQ:", req.query);
 
-    let query= "SELECT asiakas.AVAIN,asiakas.NIMI,asiakas.OSOITE,asiakas.POSTINRO,asiakas.POSTITMP,asiakas.LUONTIPVM,asiakas.ASTY_AVAIN,asiakas.Tunnus,asiakas.Salasana,asiakastyyppi.SELITE as ASTY_SELITE FROM asiakas INNER JOIN asiakastyyppi ON asiakas.ASTY_AVAIN=asiakastyyppi.AVAIN WHERE 1=1"
-
-    let nimi = req.query.nimi;
-
-    let osoite = req.query.osoite;
-
-    let asty = req.query.asty;
-
-    if (nimi != undefined) {
-
-        query = query + " AND nimi LIKE " + "'" + nimi + "%'";
-    }
-
-    if (osoite != undefined) {
-        query = query + " AND osoite LIKE" + "'" + osoite + "%'";
-    }
-
-    if (asty != undefined) {
-        query = query + " AND asty_avain LIKE" + "'" + asty + "%'";
-    }
-
-    //let query = "SELECT * from asiakastyyppi WHERE 1=1 AND nimi='x' and osoite='y'";
-
-    console.log("query:" + query);
+    let mokit = [];
+console.log("asiakas alkaa")
     connection.query(query, function(error, result, fields){
-
-        console.log("done")
-        if ( error || result == "" )
+        if ( error )
         {
             console.log("Virhe", error);
-            res.json({status : "NOT OK", message : "Virheellinen haku", data : result});
+            response.statusCode = 400;
+            response.json({status : "NOT OK", msg : "Tekninen virhe!"});
         }
         else
         {
-            res.statusCode = 200;
-            console.log(result);
-            res.json({status : "OK", message : "", data : result});
+            //console.log(":" , result);
+            console.log("asiakas loppuu")
+            response.statusCode = 200;   
+            //response.json(result)
+            mokit = result;
+
+
+            console.log("asiakastyyppi alkaa")
+            connection.query("SELECT * from varaus", function(error, result, fields){
+                if ( error )
+                {
+                    console.log("Virhe", error);
+                    response.statusCode = 400;
+                    response.json({status : "NOT OK", msg : "Tekninen virhe!"});
+                }
+                else
+                {
+                    //console.log("R (ASTY):" , result);
+                    console.log("asiakastyyppi loppuu:", mokit);
+                    response.statusCode = 200;   
+                    response.json({mokit : mokit, varaukset: result});
+                }
+            });
+
+            
+        
+
         }
     });
 
-    console.log("Kysely tehty")
 });
-
 /******************************* */
 
 app.get('*',function(req, res){
