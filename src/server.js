@@ -12,8 +12,7 @@ app.use(bodyParser.json());
 
 console.log("Aloitetaan");
 
-var cors = function (req, res, next)
-{
+var cors = function (req, res, next) {
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
     res.header('Access-Control-Allow-Headers', 'Content-Type');
@@ -24,48 +23,44 @@ app.use(cors);
 
 /************************************/
 var connection = mysql.createConnection({
-    host : 'localhost',
-    user : 'root',      // ÄLÄ KOSKAAN käytä root:n tunnusta tuotannossa
-    password : 'root',
-    database : 'vn',
-    dateStrings : true
+    host: 'localhost',
+    user: 'root',      // ÄLÄ KOSKAAN käytä root:n tunnusta tuotannossa
+    password: 'root',
+    database: 'vn',
+    dateStrings: true
 });
 
 // REST api -> GET 
 app.get('/api/vn', (request, response) => {
 
-    const query = "SELECT m.mokki_id, m.mokkinimi, m.postinro, p.toimipaikka as toimipaikka FROM mokki m join posti p on p.postinro = m.postinro WHERE 1=1";
-    
+    const query = "SELECT m.mokki_id, m.mokkinimi, m.postinro, p.toimipaikka as toimipaikka, m.katuosoite, m.henkilomaara, m.hinta  FROM mokki m join posti p on p.postinro = m.postinro WHERE 1=1";
+
 
     let mokit = [];
     let varaukset = [];
-console.log("asiakas alkaa")
-    connection.query(query, function(error, result, fields){
-        if ( error )
-        {
+    console.log("asiakas alkaa")
+    connection.query(query, function (error, result, fields) {
+        if (error) {
             console.log("Virhe", error);
             response.statusCode = 400;
-            response.json({status : "NOT OK", msg : "Tekninen virhe!"});
+            response.json({ status: "NOT OK", msg: "Tekninen virhe!" });
         }
-        else
-        {
+        else {
             //console.log(":" , result);
             console.log("asiakas loppuu")
-            response.statusCode = 200;   
+            response.statusCode = 200;
             //response.json(result)
             mokit = result;
 
 
             console.log("asiakastyyppi alkaa")
-            connection.query("SELECT * from varaus", function(error, result, fields){
-                if ( error )
-                {
+            connection.query("SELECT * from varaus", function (error, result, fields) {
+                if (error) {
                     console.log("Virhe", error);
                     response.statusCode = 400;
-                    response.json({status : "NOT OK", msg : "Tekninen virhe!"});
+                    response.json({ status: "NOT OK", msg: "Tekninen virhe!" });
                 }
-                else
-                {
+                else {
                     //console.log("R (ASTY):" , result);
                     console.log("asiakastyyppi loppuu:", mokit);
                     response.statusCode = 200;
@@ -73,34 +68,32 @@ console.log("asiakas alkaa")
                 }
             });
 
-            connection.query("SELECT DISTINCT toimipaikka from posti", function(error, result, fields){
-                if ( error )
-                {
+            connection.query("SELECT DISTINCT toimipaikka from posti", function (error, result, fields) {
+                if (error) {
                     console.log("Virhe", error);
                     response.statusCode = 400;
-                    response.json({status : "NOT OK", msg : "Tekninen virhe!"});
+                    response.json({ status: "NOT OK", msg: "Tekninen virhe!" });
                 }
-                else
-                {
+                else {
                     //console.log("R (ASTY):" , result);
                     console.log("asiakastyyppi loppuu:", mokit);
-                    response.statusCode = 200;   
-                    response.json({mokit : mokit, varaukset: varaukset, paikat : result});
+                    response.statusCode = 200;
+                    response.json({ mokit: mokit, varaukset: varaukset, paikat: result });
                 }
             });
 
-        
+
         }
     });
 
 });
 /******************************* */
 
-app.get('*',function(req, res){
+app.get('*', function (req, res) {
 
     let query = "SELECT COUNT(*) as nimet FROM asiakas";
 
-    connection.query(query,function(error,result,fields) {
+    connection.query(query, function (error, result, fields) {
 
         console.log(result[0].nimet);
 
@@ -108,9 +101,9 @@ app.get('*',function(req, res){
 
         console.log("R:", req.url);
         res.statusCode = 404;
-        res.json({message : "Osoite oli virheellinen:" + req.url, count : maara })
+        res.json({ message: "Osoite oli virheellinen:" + req.url, count: maara })
 
-    }) 
+    })
 });
 
 console.log("Serveri tulille nyt");
