@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 const Mokit = () => {
 
     const [haku, setHaku] = useState(true);
+    const [varaa, setVaraa] = useState("");
     const [mokit, setMokit] = useState([]);
     const [numero, setNumero] = useState("");
     const [spvm, setSpvm] = useState("");
@@ -63,6 +64,44 @@ const Mokit = () => {
 
     }, [haku]);
 
+
+    useEffect(() => {
+        const fetchvaraa = async () => {
+            var myHeaders = new Headers();
+            myHeaders.append("Content-Type", "application/json");
+
+            let tanaan = new Date();
+            tanaan = tanaan.getFullYear() +"-" + tanaan.getMonth() +"-"+ tanaan.getDate();
+            console.log(tanaan);
+
+            var raw = JSON.stringify({
+                "asiakas_id": 1,
+                "mokki_id": varaa,
+                "varaus_pvm": tanaan,
+                "vahvistus": tanaan,
+                "a_pvm": spvm,
+                "l_pvm": lpvm
+            });
+
+            var requestOptions = {
+                method: 'POST',
+                headers: myHeaders,
+                body: raw,
+                redirect: 'follow'
+            };
+
+            await fetch("http://localhost:3004/api/vn/varaa/", requestOptions)
+                .then(response => response.text())
+                .then(result => console.log(result))
+                .catch(error => console.log('error', error));
+        }
+        if(spvm != "" && lpvm != ""){
+            fetchvaraa();
+        }
+        
+
+    }, [varaa]);
+
     const haeButtonclicked = () => {
         console.log("klikattu");
         setHaku(!haku);
@@ -118,7 +157,8 @@ const Mokit = () => {
                                 <td>{a.katuosoite}</td>
                                 <td>{a.henkilomaara}</td>
                                 <td>{a.hinta}</td>
-                                <td><button>Varaa</button></td>
+                                <td><button value={a.mokki_id} onClick={(e)=>setVaraa(e.target.value)}>Varaa</button></td>
+                                <td><button>Lisätietoja</button></td>
                             </tr>
                         )
                     })}

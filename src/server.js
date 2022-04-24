@@ -124,7 +124,7 @@ app.post('/api/vn/varaa', (req,res) => {
             res.statusCode = 201;
             // Palautetaan juuri lisätty asiakastyyppi kutsujalle! HUOM! Kaikissa REST-rajapinnoissa EI välttämättä tehdä näin
             // ELI ei palauteta välttämättä mitään!
-            res.json({asiakas_id : asiakas_id,  mokki_id: mokki_id, varaus_pvm, vahvistus, a_pvm, l_pvm})
+            res.json({asiakas_id : asiakas_id,  mokki_id: mokki_id, varaus_pvm : varaus_pvm, vahvistus : vahvistus, a_pvm :a_pvm, l_pvm : l_pvm})
         }
     });
 });
