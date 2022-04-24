@@ -87,6 +87,47 @@ app.get('/api/vn', (request, response) => {
     });
 
 });
+
+
+app.post('/api/vn/varaa', (req,res) => {
+    
+    console.log("/vn/varaus. BODY:", req.body);
+
+    let asiakas_id = req.body.asiakas_id;
+    let mokki_id = req.body.mokki_id;
+    let varaus_pvm = req.body.varaus_pvm;
+    let vahvistus = req.body.vahvistus;
+    let a_pvm = req.body.a_pvm;
+    let l_pvm = req.body.l_pvm;
+
+    
+    // Tarkista kentät -> jos virheitä -> palauta validi statuscode ja res.json    
+    
+    let query = "INSERT INTO varaus (asiakas_id, mokki_mokki_id, varattu_pvm, vahvistus_pvm, varattu_alkupvm, varattu_loppupvm) VALUES (?, ?, ?, ?, ?, ?) ";
+
+    // ÄLÄ TEE näin! SQL Injection!
+    //let query = "INSERT INTO asiakastyyppi (LYHENNE, SELITE) VALUES ('" + lyhenne + "', '" + selite + "')";
+
+    console.log("query:" + query);
+    connection.query(query, [asiakas_id, mokki_id, varaus_pvm, vahvistus, a_pvm, l_pvm], function(error, result, fields){
+    //connection.query(query,  function(error, result, fields){
+
+        if ( error )
+        {
+            console.log("Virhe", error);
+            res.statusCode = 400;
+            res.json({status : "NOT OK", msg : "Tekninen virhe!"});
+        }
+        else
+        {
+            console.log("R:" , result);
+            res.statusCode = 201;
+            // Palautetaan juuri lisätty asiakastyyppi kutsujalle! HUOM! Kaikissa REST-rajapinnoissa EI välttämättä tehdä näin
+            // ELI ei palauteta välttämättä mitään!
+            res.json({asiakas_id : asiakas_id,  mokki_id: mokki_id, varaus_pvm, vahvistus, a_pvm, l_pvm})
+        }
+    });
+});
 /******************************* */
 
 app.get('*', function (req, res) {
