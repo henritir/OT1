@@ -38,6 +38,7 @@ app.get('/api/vn', (request, response) => {
 
     let mokit = [];
     let varaukset = [];
+    let asiakkaat = [];
     console.log("asiakas alkaa")
     connection.query(query, function (error, result, fields) {
         if (error) {
@@ -68,6 +69,20 @@ app.get('/api/vn', (request, response) => {
                 }
             });
 
+            connection.query("SELECT * from asiakas", function (error, result, fields) {
+                if (error) {
+                    console.log("Virhe", error);
+                    response.statusCode = 400;
+                    response.json({ status: "NOT OK", msg: "Tekninen virhe!" });
+                }
+                else {
+                    //console.log("R (ASTY):" , result);
+                    console.log("asiakastyyppi loppuu:", mokit);
+                    response.statusCode = 200;
+                    asiakkaat = result;
+                }
+            });
+
             connection.query("SELECT DISTINCT toimipaikka from posti", function (error, result, fields) {
                 if (error) {
                     console.log("Virhe", error);
@@ -78,7 +93,7 @@ app.get('/api/vn', (request, response) => {
                     //console.log("R (ASTY):" , result);
                     console.log("asiakastyyppi loppuu:", mokit);
                     response.statusCode = 200;
-                    response.json({ mokit: mokit, varaukset: varaukset, paikat: result });
+                    response.json({ mokit: mokit, varaukset: varaukset,asiakkaat: asiakkaat, paikat: result });
                 }
             });
 

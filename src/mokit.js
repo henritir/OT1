@@ -2,15 +2,18 @@ import { useEffect, useState } from "react";
 
 const Mokit = () => {
 
-    const [haku, setHaku] = useState(true);
     const [varaa, setVaraa] = useState("");
     const [mokit, setMokit] = useState([]);
-    const [numero, setNumero] = useState("");
     const [spvm, setSpvm] = useState("");
     const [lpvm, setLpvm] = useState("");
     const [paikat, setPaikat] = useState([]);
     const [paikka, setPaikka] = useState("");
-
+    const [asikkaat, setAsiakkaat] = useState([]);
+    const [asiakas, setAsiakas] = useState("");
+    const [haettu_a_pvm, setHaettu_a_pvm] = useState("");
+    const [haettu_l_pvm, setHaettu_l_pvm] = useState("");
+    const [onnistui, setOnnistui] = useState(false);
+    const [e_onnistui, setE_onnistu] = useState(false);
 
 
     useEffect(() => {
@@ -58,11 +61,12 @@ const Mokit = () => {
             console.log(paikka);
             setMokit(mokit);
             setPaikat(c.paikat);
+            setAsiakkaat(c.asiakkaat);
 
         }
         fetchmokit();
 
-    }, [haku]);
+    }, [haettu_a_pvm, haettu_l_pvm]);
 
 
     useEffect(() => {
@@ -75,7 +79,7 @@ const Mokit = () => {
             console.log(tanaan);
 
             var raw = JSON.stringify({
-                "asiakas_id": 1,
+                "asiakas_id": asiakas,
                 "mokki_id": varaa,
                 "varaus_pvm": tanaan,
                 "vahvistus": tanaan,
@@ -95,26 +99,59 @@ const Mokit = () => {
                 .then(result => console.log(result))
                 .catch(error => console.log('error', error));
         }
-        if(spvm != "" && lpvm != ""){
-            fetchvaraa();
-        }
+        
+        fetchvaraa();
+        
         
 
     }, [varaa]);
 
     const haeButtonclicked = () => {
-        console.log("klikattu");
-        setHaku(!haku);
+        setHaettu_a_pvm(spvm);
+        setHaettu_l_pvm(lpvm);
+    }
+
+    const varaaButtonClicked = (e) => {
+        console.log(haettu_a_pvm+"  "+haettu_l_pvm+"  "+asiakas)
+        if(haettu_a_pvm != "" && haettu_l_pvm != "" && asiakas !=""){
+            setVaraa(e);
+            setOnnistui(true);
+            setE_onnistu(false);
+        }
+        else {
+            setE_onnistu(true);
+            setOnnistui(false);
+        }
     }
 
 
     return (
         <div>
-            <p></p>
-            <label> PostiNro
-                <input onChange={(e) => setNumero(e.target.value)}>
+            <p>Hakutiedot(pakolliset)</p>
+
+            <label> Asiakas
+                <select onChange={(e)=>setAsiakas(e.target.value)}>
+                    <option value="">--valitse--</option>
+                    {asikkaat.map((a,i)=> {
+                        return (
+                            <option key={i} value={a.asiakas_id}>{a.asiakas_id}, {a.sukunimi} {a.etunimi}</option>
+                        )
+                    })}
+                </select>
+            </label>
+            
+            <label>Saapumispvm(vvvv-kk-pp)
+                <input onChange={(e) => setSpvm(e.target.value)}>
                 </input>
             </label>
+
+            <label>Lähtöpvm(vvvv-kk-pp)
+                <input onChange={(e) => setLpvm(e.target.value)}>
+                </input>
+            </label>
+            <button onClick={(e) => haeButtonclicked(e)}>Hae</button>
+
+            <p>Hakuehdot</p>
             <label>Paikka
                 <select onChange={(e) => setPaikka(e.target.value)}>
                     <option value="">--valitse--</option>
@@ -125,15 +162,7 @@ const Mokit = () => {
                     })}
                 </select>
             </label>
-            <label>Saapumispvm(vvvv-kk-pp)
-                <input onChange={(e) => setSpvm(e.target.value)}>
-                </input>
-            </label>
-            <label>Lähtöpvm(vvvv-kk-pp)
-                <input onChange={(e) => setLpvm(e.target.value)}>
-                </input>
-            </label>
-            <button onClick={(e) => haeButtonclicked(e)}>Hae</button>
+
             <table>
                 <thead>
                     <tr>
@@ -157,13 +186,35 @@ const Mokit = () => {
                                 <td>{a.katuosoite}</td>
                                 <td>{a.henkilomaara}</td>
                                 <td>{a.hinta}</td>
-                                <td><button value={a.mokki_id} onClick={(e)=>setVaraa(e.target.value)}>Varaa</button></td>
+                                <td><button value={a.mokki_id} onClick={(e)=>varaaButtonClicked(e.target.value)}>Varaa</button></td>
                                 <td><button>Lisätietoja</button></td>
                             </tr>
                         )
                     })}
                 </tbody>
             </table>
+            <div>
+                {
+                    onnistui ?
+                    <div>
+                        <h2>Varauksen tiedot</h2>
+                <p>Asiakas id: {asiakas}</p>
+                <p>Mökki id: {varaa}</p>
+                <p>Saapumispvm: {haettu_a_pvm}</p>
+                <p>Lähtöpvm: {haettu_l_pvm}</p>
+
+                    </div> : null
+                }
+
+                {
+                    e_onnistui ?
+                    <div>
+                        <h2>Puutteelliset tiedot</h2>
+                    </div> : null
+                }
+
+
+            </div>
 
         </div>
 
