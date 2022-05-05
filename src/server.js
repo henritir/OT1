@@ -84,7 +84,7 @@ app.post('/api/vn/addalue', (req,res) => {
     let alue_id = req.body.alue_id;
     let nimi = req.body.nimi; 
     
-    let query = "INSERT INTO alue (alue_id, nimi) VALUES (?, ?) ";
+    let query = "INSERT INTO alue (alue_id, nimi) VALUES (?, ?) ON DUPLICATE KEY UPDATE nimi = VALUES(nimi)";
 
     console.log("query:" + query);
     connection.query(query, [alue_id, nimi], function(error, result, fields){
@@ -101,6 +101,38 @@ app.post('/api/vn/addalue', (req,res) => {
             console.log("R:" , result);
             res.statusCode = 201;
             res.json({alue_id : alue_id,  nimi : nimi})
+        }
+    });
+});
+app.post('/api/vn/addpalvelu', (req,res) => {
+    
+    console.log("/vn/addalue. BODY:", req.body);
+
+    let palvelu_id = req.body.palvelu_id;
+    let alue_id = req.body.alue_id;
+    let nimi = req.body.nimi;
+    let tyyppi = req.body.tyyppi;
+    let kuvaus = req.body.kuvaus;
+    let hinta = req.body.hinta;
+    let alv = req.body.alv; 
+    
+    let query = "INSERT INTO palvelu (palvelu_id, alue_id, nimi, tyyppi, kuvaus, hinta, alv) VALUES (?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE ";
+    query = query + "alue_id = VALUES(alue_id),nimi = VALUES(nimi),tyyppi = VALUES(tyyppi),kuvaus = VALUES(kuvaus),hinta = VALUES(hinta),alv = VALUES(alv),";
+    console.log("query:" + query);
+    connection.query(query, [palvelu_id, alue_id, nimi, tyyppi, kuvaus, hinta, alv], function(error, result, fields){
+    //connection.query(query,  function(error, result, fields){
+
+        if ( error )
+        {
+            console.log("Virhe", error);
+            res.statusCode = 400;
+            res.json({status : "NOT OK", msg : "Tekninen virhe!"});
+        }
+        else
+        {
+            console.log("R:" , result);
+            res.statusCode = 201;
+            res.json({palvelu_id : palvelu_id, alue_id : alue_id, nimi : nimi, tyyppi : tyyppi, kuvaus : kuvaus, hinta: hinta, alv: alv})
         }
     });
 });
