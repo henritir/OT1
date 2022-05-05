@@ -14,6 +14,8 @@ const Mokit = () => {
     const [haettu_l_pvm, setHaettu_l_pvm] = useState("");
     const [onnistui, setOnnistui] = useState(false);
     const [e_onnistui, setE_onnistu] = useState(false);
+    const [haku, setHaku] = useState(true);
+    const [poista, setPoista] = useState("");
 
 
     useEffect(() => {
@@ -66,7 +68,7 @@ const Mokit = () => {
         }
         fetchmokit();
 
-    }, [haettu_a_pvm, haettu_l_pvm]);
+    }, [haku]);
 
 
     useEffect(() => {
@@ -98,17 +100,45 @@ const Mokit = () => {
                 .then(response => response.text())
                 .then(result => console.log(result))
                 .catch(error => console.log('error', error));
+
         }
         
-        fetchvaraa();
-        
+        if(varaa!=""){
+            fetchvaraa();
+        }
         
 
     }, [varaa]);
 
+
+    useEffect(() => {
+        const fetchpoista = async () => {
+
+            var requestOptions = {
+                method: 'DELETE',
+                redirect: 'follow'
+              };
+              
+            await  fetch("http://localhost:3004/api/vn/mokki/poista/" + poista, requestOptions)
+                .then(response => response.text())
+                .then(result => console.log(result))
+                .catch(error => console.log('error', error));
+
+            setHaku(!haku);
+            console.log(haku);
+        }
+
+        if (poista != ""){
+            fetchpoista();
+        }
+        
+
+    }, [poista]);
+
     const haeButtonclicked = () => {
         setHaettu_a_pvm(spvm);
         setHaettu_l_pvm(lpvm);
+        setHaku(!haku);
     }
 
     const varaaButtonClicked = (e) => {
@@ -187,7 +217,8 @@ const Mokit = () => {
                                 <td>{a.henkilomaara}</td>
                                 <td>{a.hinta}</td>
                                 <td><button value={a.mokki_id} onClick={(e)=>varaaButtonClicked(e.target.value)}>Varaa</button></td>
-                                <td><button>Lisätietoja</button></td>
+                                <td><button>Muokkaa</button></td>
+                                <td><button value={a.mokki_id} onClick={(e)=>setPoista(e.target.value)}>Poista</button></td>
                             </tr>
                         )
                     })}
