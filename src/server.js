@@ -140,7 +140,7 @@ app.post('/api/vn/addpalvelu', (req,res) => {
 // REST api -> GET 
 app.get('/api/vn', (request, response) => {
 
-    const query = "SELECT m.mokki_id, m.mokkinimi, m.postinro, p.toimipaikka as toimipaikka, m.katuosoite, m.henkilomaara, m.hinta  FROM mokki m join posti p on p.postinro = m.postinro WHERE 1=1";
+    const query = "SELECT m.mokki_id, m.mokkinimi, m.postinro, p.toimipaikka as toimipaikka, m.katuosoite, m.henkilomaara, m.hinta, m.kuvaus, m.varustelu  FROM mokki m join posti p on p.postinro = m.postinro WHERE 1=1";
 
 
     let mokit = [];
@@ -210,7 +210,6 @@ app.get('/api/vn', (request, response) => {
 
 });
 
-
 app.post('/api/vn/varaa', (req,res) => {
     
     console.log("/vn/varaus. BODY:", req.body);
@@ -253,6 +252,71 @@ app.post('/api/vn/varaa', (req,res) => {
 
 
 /******************************* */
+
+
+
+app.get('/api/vn/mokki/:mokki_id', (request, response) => {
+
+    const query = "SELECT* FROM mokki WHERE mokki_id = ?;";
+
+    let mokki_id = request.params.mokki_id;
+
+    console.log("alueet alkaa")
+    connection.query(query,[mokki_id], function (error, result, fields) {
+        if (error) {
+            console.log("Virhe", error);
+            response.statusCode = 400;
+            response.json({ status: "NOT OK", msg: "Tekninen virhe!" });
+        }
+        else {
+            //console.log(":" , result);
+            console.log("asiakas loppuu")
+            response.statusCode = 200;
+            //response.json(result)
+            response.json(result);
+        }
+    });
+
+});
+
+app.put('/api/vn/mokki/muokkaa/:mokki_id', (req,res) => {
+    
+    console.log("/asiakastyyppi. PARAMS:", req.params);
+    console.log("/asiakastyyppi. BODY:", req.body);
+
+    let postinro = req.body.postinro;
+    let mokkinimi = req.body.mokkinimi;
+    let katuosoite = req.body.katuosoite;
+    let hinta = req.body.hinta;
+    let kuvaus = req.body.kuvaus;
+    let henkilomaara = req.body.henkilomaara;
+    let varustelu = req.body.varustelu;
+
+
+    // HUOM! url:ssa oleva muuttuja löytyy params-muuttujasta, huomaa nimeäminen
+    let mokki_id = req.params.mokki_id;
+    
+    let query = "UPDATE mokki SET postinro=?, mokkinimi=?, katuosoite=?, hinta=?, kuvaus=?, henkilomaara=?, varustelu =? where mokki_id = ? ";
+
+    console.log("query:" + query);
+    connection.query(query, [postinro,mokkinimi,katuosoite,hinta,kuvaus,henkilomaara,varustelu, mokki_id], function(error, result, fields){
+        if ( error )
+        {
+            console.log("Virhe", error);
+            res.statusCode = 400;
+            res.json({status : "NOT OK", msg : "Tekninen virhe!"});
+        }
+        else
+        {
+            console.log("R:" , result);
+            res.statusCode = 204;   // 204 -> No content -> riittää palauttaa vain statuskoodi
+
+            // HUOM! Jotain pitää aina palauttaa, jotta node "lopettaa" tämän suorituksen.
+            // Jos ao. rivi puuttuu, jää kutsuja odottamaan että jotain palautuu api:sta
+            res.json()
+        }
+    });
+});
 
 app.get('*', function (req, res) {
 

@@ -16,6 +16,16 @@ const Mokit = () => {
     const [e_onnistui, setE_onnistu] = useState(false);
     const [haku, setHaku] = useState(true);
     const [poista, setPoista] = useState("");
+    const [muokkaa, setMuokkaa] = useState("");
+    const [muokattava, setMuokattava] = useState([]);
+    const [m_postinro, setM_postinro] = useState("");
+    const [m_nimi, setM_nimi] = useState("");
+    const [m_osoite, setM_osoite] = useState("");
+    const [m_hinta, setM_hinta] = useState("");
+    const [m_kuvaus, setM_kuvaus] = useState("");
+    const [m_hmaara, setM_hmaara] = useState("");
+    const [m_varustelu, setM_varustelu] = useState("");
+    const [tallenna, setTallenna] = useState(false);
 
 
     useEffect(() => {
@@ -77,7 +87,7 @@ const Mokit = () => {
             myHeaders.append("Content-Type", "application/json");
 
             let tanaan = new Date();
-            tanaan = tanaan.getFullYear() +"-" + tanaan.getMonth() +"-"+ tanaan.getDate();
+            tanaan = tanaan.getFullYear() + "-" + tanaan.getMonth() + "-" + tanaan.getDate();
             console.log(tanaan);
 
             var raw = JSON.stringify({
@@ -102,13 +112,73 @@ const Mokit = () => {
                 .catch(error => console.log('error', error));
 
         }
-        
-        if(varaa!=""){
+
+        if (varaa != "") {
             fetchvaraa();
+        }
+
+
+    }, [varaa]);
+
+    useEffect(() => {
+        const fetchmokki = async () => {
+
+            let response = await fetch("http://localhost:3004/api/vn/mokki/" + muokkaa);
+            let c = await response.json();
+            console.log(c);
+            setMuokattava(c[0]);
+            setM_postinro(c[0].postinro);
+            setM_nimi(c[0].mokkinimi);
+            setM_osoite(c[0].katuosoite);
+            setM_hinta(c[0].hinta);
+            setM_kuvaus(c[0].kuvaus);
+            setM_hmaara(c[0].henkilomaara);
+            setM_varustelu(c[0].varustelu);
+        }
+
+        if (muokkaa != "") {
+            fetchmokki();
+        }
+
+    }, [muokkaa]);
+
+    useEffect(() => {
+        const fetchmuokka = async () => {
+
+            var myHeaders = new Headers();
+            myHeaders.append("Content-Type", "application/json");
+
+            var raw = JSON.stringify({
+                "postinro": m_postinro,
+                "mokkinimi": m_nimi,
+                "katuosoite": m_osoite,
+                "hinta": m_hinta,
+                "kuvaus": m_kuvaus,
+                "henkilomaara": m_hmaara,
+                "varustelu": m_varustelu
+            });
+
+            var requestOptions = {
+                method: 'PUT',
+                headers: myHeaders,
+                body: raw,
+                redirect: 'follow'
+            };
+
+            fetch("http://localhost:3004/api/vn/mokki/muokkaa/8", requestOptions)
+                .then(response => response.text())
+                .then(result => console.log(result))
+                .catch(error => console.log('error', error));
+
+                setHaku(!haku);
+        }
+        if(muokkaa != ""){
+            fetchmuokka();
         }
         
 
-    }, [varaa]);
+
+    }, [tallenna]);
 
 
     useEffect(() => {
@@ -117,9 +187,9 @@ const Mokit = () => {
             var requestOptions = {
                 method: 'DELETE',
                 redirect: 'follow'
-              };
-              
-            await  fetch("http://localhost:3004/api/vn/mokki/poista/" + poista, requestOptions)
+            };
+
+            await fetch("http://localhost:3004/api/vn/mokki/poista/" + poista, requestOptions)
                 .then(response => response.text())
                 .then(result => console.log(result))
                 .catch(error => console.log('error', error));
@@ -128,10 +198,10 @@ const Mokit = () => {
             console.log(haku);
         }
 
-        if (poista != ""){
+        if (poista != "") {
             fetchpoista();
         }
-        
+
 
     }, [poista]);
 
@@ -142,8 +212,8 @@ const Mokit = () => {
     }
 
     const varaaButtonClicked = (e) => {
-        console.log(haettu_a_pvm+"  "+haettu_l_pvm+"  "+asiakas)
-        if(haettu_a_pvm != "" && haettu_l_pvm != "" && asiakas !=""){
+        console.log(haettu_a_pvm + "  " + haettu_l_pvm + "  " + asiakas)
+        if (haettu_a_pvm != "" && haettu_l_pvm != "" && asiakas != "") {
             setVaraa(e);
             setOnnistui(true);
             setE_onnistu(false);
@@ -160,16 +230,16 @@ const Mokit = () => {
             <p>Hakutiedot(pakolliset)</p>
 
             <label> Asiakas
-                <select onChange={(e)=>setAsiakas(e.target.value)}>
+                <select onChange={(e) => setAsiakas(e.target.value)}>
                     <option value="">--valitse--</option>
-                    {asikkaat.map((a,i)=> {
+                    {asikkaat.map((a, i) => {
                         return (
                             <option key={i} value={a.asiakas_id}>{a.asiakas_id}, {a.sukunimi} {a.etunimi}</option>
                         )
                     })}
                 </select>
             </label>
-            
+
             <label>Saapumispvm(vvvv-kk-pp)
                 <input onChange={(e) => setSpvm(e.target.value)}>
                 </input>
@@ -216,9 +286,11 @@ const Mokit = () => {
                                 <td>{a.katuosoite}</td>
                                 <td>{a.henkilomaara}</td>
                                 <td>{a.hinta}</td>
-                                <td><button value={a.mokki_id} onClick={(e)=>varaaButtonClicked(e.target.value)}>Varaa</button></td>
-                                <td><button>Muokkaa</button></td>
-                                <td><button value={a.mokki_id} onClick={(e)=>setPoista(e.target.value)}>Poista</button></td>
+                                <td>{a.kuvaus}</td>
+                                <td>{a.varustelu}</td>
+                                <td><button value={a.mokki_id} onClick={(e) => varaaButtonClicked(e.target.value)}>Varaa</button></td>
+                                <td><button value={a.mokki_id} onClick={(e) => setMuokkaa(e.target.value)}>Muokkaa</button></td>
+                                <td><button value={a.mokki_id} onClick={(e) => setPoista(e.target.value)}>Poista</button></td>
                             </tr>
                         )
                     })}
@@ -227,23 +299,42 @@ const Mokit = () => {
             <div>
                 {
                     onnistui ?
-                    <div>
-                        <h2>Varauksen tiedot</h2>
-                <p>Asiakas id: {asiakas}</p>
-                <p>Mökki id: {varaa}</p>
-                <p>Saapumispvm: {haettu_a_pvm}</p>
-                <p>Lähtöpvm: {haettu_l_pvm}</p>
+                        <div>
+                            <h2>Varauksen tiedot</h2>
+                            <p>Asiakas id: {asiakas}</p>
+                            <p>Mökki id: {varaa}</p>
+                            <p>Saapumispvm: {haettu_a_pvm}</p>
+                            <p>Lähtöpvm: {haettu_l_pvm}</p>
 
-                    </div> : null
+                        </div> : null
                 }
 
                 {
                     e_onnistui ?
-                    <div>
-                        <h2>Puutteelliset tiedot</h2>
-                    </div> : null
+                        <div>
+                            <h2>Puutteelliset tiedot</h2>
+                        </div> : null
                 }
 
+
+            </div>
+            <div>
+                {
+                    muokkaa ?
+                        <div>
+                            <h2>Muokkaa mökkiä {muokattava.mokki_id}</h2>
+                            <label>Postinro<input value={m_postinro} onChange={(e) => setM_postinro(e.target.value)}></input></label>
+                            <label>Nimi<input value={m_nimi} onChange={(e) => setM_nimi(e.target.value)}></input></label>
+                            <label>Osoite<input value={m_osoite} onChange={(e) => setM_osoite(e.target.value)}></input></label>
+                            <label>Hinta<input value={m_hinta} onChange={(e) => setM_hinta(e.target.value)}></input></label>
+                            <label>Kuvaus<input value={m_kuvaus} onChange={(e) => setM_kuvaus(e.target.value)}></input></label>
+                            <label>Henkilömäärä<input value={m_hmaara} onChange={(e) => setM_hmaara(e.target.value)}></input></label>
+                            <label>Varustelu<input value={m_varustelu} onChange={(e) => setM_varustelu(e.target.value)}></input></label>
+                            <button onClick={(e)=> setTallenna(!tallenna)}>Tallenna</button>
+                            <button onClick={(e) => setMuokkaa("")}>Peruuta</button>
+
+                        </div> : null
+                }
 
             </div>
 
