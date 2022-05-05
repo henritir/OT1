@@ -1,5 +1,5 @@
 //const app = require('./teht6_12.js')
-const app = require('./teht1_5.js')
+const app = require('./server.js')
 //const app = require('./server.js')
 
 let port = 3004;

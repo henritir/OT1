@@ -29,6 +29,81 @@ var connection = mysql.createConnection({
     database: 'vn',
     dateStrings: true
 });
+app.get('/api/vn/alue', (request, response) => {
+
+    const query = "SELECT alue_id, nimi from alue ORDER BY alue_id ASC";
+
+
+    let alueet = [];
+    console.log("alueet alkaa")
+    connection.query(query, function (error, result, fields) {
+        if (error) {
+            console.log("Virhe", error);
+            response.statusCode = 400;
+            response.json({ status: "NOT OK", msg: "Tekninen virhe!" });
+        }
+        else {
+            //console.log(":" , result);
+            console.log("asiakas loppuu")
+            response.statusCode = 200;
+            //response.json(result)
+            alueet = result;
+            response.json(alueet);
+        }
+    });
+
+});
+app.get('/api/vn/palvelu', (request, response) => {
+
+    const query = "SELECT palvelu_id, alue_id, nimi, tyyppi, kuvaus, hinta, alv from palvelu";
+
+
+    let palvelut = [];
+    console.log("alueet alkaa")
+    connection.query(query, function (error, result, fields) {
+        if (error) {
+            console.log("Virhe", error);
+            response.statusCode = 400;
+            response.json({ status: "NOT OK", msg: "Tekninen virhe!" });
+        }
+        else {
+            //console.log(":" , result);
+            console.log("asiakas loppuu")
+            response.statusCode = 200;
+            //response.json(result)
+            palvelut = result;
+            response.json(palvelut);
+        }
+    });
+
+});
+app.post('/api/vn/addalue', (req,res) => {
+    
+    console.log("/vn/addalue. BODY:", req.body);
+
+    let alue_id = req.body.alue_id;
+    let nimi = req.body.nimi; 
+    
+    let query = "INSERT INTO alue (alue_id, nimi) VALUES (?, ?) ";
+
+    console.log("query:" + query);
+    connection.query(query, [alue_id, nimi], function(error, result, fields){
+    //connection.query(query,  function(error, result, fields){
+
+        if ( error )
+        {
+            console.log("Virhe", error);
+            res.statusCode = 400;
+            res.json({status : "NOT OK", msg : "Tekninen virhe!"});
+        }
+        else
+        {
+            console.log("R:" , result);
+            res.statusCode = 201;
+            res.json({alue_id : alue_id,  nimi : nimi})
+        }
+    });
+});
 
 // REST api -> GET 
 app.get('/api/vn', (request, response) => {
@@ -143,6 +218,8 @@ app.post('/api/vn/varaa', (req,res) => {
         }
     });
 });
+
+
 /******************************* */
 
 app.get('*', function (req, res) {
