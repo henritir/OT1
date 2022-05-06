@@ -26,6 +26,9 @@ const Mokit = () => {
     const [m_hmaara, setM_hmaara] = useState("");
     const [m_varustelu, setM_varustelu] = useState("");
     const [tallenna, setTallenna] = useState(false);
+    const [lisaa, setLisaa] = useState(false);
+    const [alueet, setAlueet] = useState([]);
+    const [postinro, setPostinro] = useState([]);
 
 
     useEffect(() => {
@@ -205,6 +208,18 @@ const Mokit = () => {
 
     }, [poista]);
 
+    useEffect(()=> {
+        const fetchlisaavalikot = async () => {
+            let response = await fetch("http://localhost:3004/api/vn/lisaamokki");
+            let c = await response.json();
+            setAlueet(c.alueet);
+            setPostinro(c.postinro);
+        }
+        if(lisaa){
+            fetchlisaavalikot();
+        }
+    }, [lisaa]);
+
     const haeButtonclicked = () => {
         setHaettu_a_pvm(spvm);
         setHaettu_l_pvm(lpvm);
@@ -338,6 +353,47 @@ const Mokit = () => {
 
             </div>
 
+            <div>
+                {
+                    lisaa ? 
+                    <div>
+                        <br></br>
+                        <h2>Uuden mökin lisäys</h2>
+                        <label>Alue
+                            <select>
+                                {alueet.map((a,i)=>{
+                                    return(
+                                        <option key={i} value={a.alue_id}>{a.nimi},{a.alue_id}</option>
+                                    )
+                                })}
+
+                            </select>
+                        </label>
+                        <label>Postitoimipaikka
+                            <select>
+                                {postinro.map((a,i)=>{
+                                    return(
+                                        <option key={i} value = {a.postinro}>{a.toimipaikka}, {a.postinro}</option>
+                                    )
+                                })}
+
+                            </select></label>
+                        <label>Nimi<input></input></label>
+                        <label>Osoite<input></input></label>
+                        <label>Hinta<input></input></label>
+                        <label>Kuvaus<input></input></label>
+                        <label>Henkilömäärä<input></input></label>
+                        <label>Varustelu<input></input></label>
+                        <button>Lisää</button>
+                        <button onClick={()=> setLisaa(false)}>Peruuta</button>
+                    </div>
+                     : 
+                    <div>
+                        <br></br>
+                        <button onClick={()=>setLisaa(true)}>Lisää uusi mökki</button>
+                    </div>
+                }
+            </div>
         </div>
 
     )

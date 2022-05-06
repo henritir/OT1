@@ -318,6 +318,47 @@ app.put('/api/vn/mokki/muokkaa/:mokki_id', (req,res) => {
     });
 });
 
+app.get('/api/vn/lisaamokki', (request, response) => {
+
+    const query = "SELECT* FROM alue;";
+    let alueet = [];
+    let postinro = [];
+
+    console.log("alueet alkaa")
+    connection.query(query, function (error, result, fields) {
+        if (error) {
+            console.log("Virhe", error);
+            response.statusCode = 400;
+            response.json({ status: "NOT OK", msg: "Tekninen virhe!" });
+        }
+        else {
+            //console.log(":" , result);
+            console.log("asiakas loppuu")
+            response.statusCode = 200;
+            //response.json(result)
+            alueet = result;
+        
+
+        connection.query("SELECT* from posti", function (error, result, fields) {
+            if (error) {
+                console.log("Virhe", error);
+                response.statusCode = 400;
+                response.json({ status: "NOT OK", msg: "Tekninen virhe!" });
+            }
+            else {
+                //console.log("R (ASTY):" , result);
+                //console.log("asiakastyyppi loppuu:", mokit);
+                response.statusCode = 200;
+                response.json({ alueet: alueet, postinro: result});
+            }
+        });
+    }
+    });
+
+});
+
+
+
 app.get('*', function (req, res) {
 
     let query = "SELECT COUNT(*) as nimet FROM asiakas";
