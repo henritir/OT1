@@ -357,6 +357,74 @@ app.get('/api/vn/lisaamokki', (request, response) => {
 
 });
 
+app.post('/api/vn/uusimokki', (req,res) => {
+    
+    console.log("/api/vn/uusimokki. BODY:", req.body);
+
+    let alue = req.body.alue;
+    let postinro = req.body.postinro;
+    let nimi = req.body.nimi;
+    let osoite = req.body.osoite;
+    let hinta = req.body.hinta;
+    let kuvaus = req.body.kuvaus;
+    let hmaara = req.body.hmaara;
+    let varustelu = req.body.varustelu;
+
+    
+    // Tarkista kentät -> jos virheitä -> palauta validi statuscode ja res.json    
+    
+    let query = "INSERT INTO mokki (alue_id, postinro, mokkinimi, katuosoite, hinta, kuvaus, henkilomaara, varustelu) VALUES (?, ?, ?, ?, ?, ?, ?, ?) ";
+
+    // ÄLÄ TEE näin! SQL Injection!
+    //let query = "INSERT INTO asiakastyyppi (LYHENNE, SELITE) VALUES ('" + lyhenne + "', '" + selite + "')";
+
+    console.log("query:" + query);
+    connection.query(query, [alue, postinro, nimi, osoite, hinta, kuvaus, hmaara, varustelu], function(error, result, fields){
+    //connection.query(query,  function(error, result, fields){
+
+        if ( error )
+        {
+            console.log("Virhe", error);
+            res.statusCode = 400;
+            res.json({status : "NOT OK", msg : "Tekninen virhe!"});
+        }
+        else
+        {
+            console.log("R:" , result);
+            res.statusCode = 201;
+            // Palautetaan juuri lisätty asiakastyyppi kutsujalle! HUOM! Kaikissa REST-rajapinnoissa EI välttämättä tehdä näin
+            // ELI ei palauteta välttämättä mitään!
+            res.json({id: result.insertId, alue : alue,  postinro: postinro})
+        }
+    });
+});
+
+app.delete('/api/vn/mokki/poista/:mokki_id', (req,res) => {
+
+    // HUOM! url:ssa oleva muuttuja löytyy params-muuttujasta, huomaa nimeäminen
+    let mokki_id = req.params.mokki_id;
+    
+    let query = "DELETE FROM mokki where mokki_id = ? ";
+
+    console.log("query:" + query);
+    connection.query(query, [mokki_id], function(error, result, fields){
+        if ( error )
+        {
+            console.log("Virhe", error);
+            res.statusCode = 400;
+            res.json({status : "NOT OK", msg : "Tekninen virhe!"});
+        }
+        else
+        {
+            console.log("R:" , result);
+            res.statusCode = 204;   // 204 -> No content -> riittää palauttaa vain statuskoodi
+
+            // HUOM! Jotain pitää aina palauttaa, jotta node "lopettaa" tämän suorituksen.
+            // Jos ao. rivi puuttuu, jää kutsuja odottamaan että jotain palautuu api:sta
+            res.json()
+        }
+    });
+});
 
 
 app.get('*', function (req, res) {

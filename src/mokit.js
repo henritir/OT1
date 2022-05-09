@@ -29,6 +29,16 @@ const Mokit = () => {
     const [lisaa, setLisaa] = useState(false);
     const [alueet, setAlueet] = useState([]);
     const [postinro, setPostinro] = useState([]);
+    const [u_alue, setU_alue] = useState("");
+    const [u_postinro, setU_postinro] = useState("");
+    const [u_nimi, setU_nimi] = useState("");
+    const [u_osoite, setU_osoite] = useState("");
+    const [u_hinta, setU_hinta] = useState("");
+    const [u_kuvaus, setU_kuvaus] = useState("");
+    const [u_hmaara, setU_hmaara] = useState("");
+    const [u_varustelu, setU_varustelu] = useState("");
+    const [uusimokki, setUusimokki] = useState("");
+
 
 
     useEffect(() => {
@@ -168,17 +178,18 @@ const Mokit = () => {
                 redirect: 'follow'
             };
 
-            fetch("http://localhost:3004/api/vn/mokki/muokkaa/8", requestOptions)
+            fetch("http://localhost:3004/api/vn/mokki/muokkaa/"+muokkaa, requestOptions)
                 .then(response => response.text())
                 .then(result => console.log(result))
                 .catch(error => console.log('error', error));
 
-                setHaku(!haku);
+            
         }
-        if(muokkaa != ""){
+        if (muokkaa != "") {
             fetchmuokka();
+            setHaku(!haku);
         }
-        
+
 
 
     }, [tallenna]);
@@ -208,17 +219,56 @@ const Mokit = () => {
 
     }, [poista]);
 
-    useEffect(()=> {
+    useEffect(() => {
         const fetchlisaavalikot = async () => {
             let response = await fetch("http://localhost:3004/api/vn/lisaamokki");
             let c = await response.json();
             setAlueet(c.alueet);
             setPostinro(c.postinro);
+            setU_alue(c.alueet[0].alue_id);
+            setU_postinro(c.postinro[0].postinro);
+            setM_postinro(c.postinro[0].postinro);
         }
-        if(lisaa){
-            fetchlisaavalikot();
+        
+        fetchlisaavalikot();
+        
+        
+    }, [lisaa,muokkaa]);
+
+    useEffect(() => {
+        const fetchuusimokki = async () => {
+            var myHeaders = new Headers();
+            myHeaders.append("Content-Type", "application/json");
+
+            var raw = JSON.stringify({
+                "alue": u_alue,
+                "postinro": u_postinro,
+                "nimi": u_nimi,
+                "osoite": u_osoite,
+                "hinta": u_hinta,
+                "kuvaus": u_kuvaus,
+                "hmaara": u_hmaara,
+                "varustelu": u_varustelu
+            });
+
+            var requestOptions = {
+                method: 'POST',
+                headers: myHeaders,
+                body: raw,
+                redirect: 'follow'
+            };
+
+            await fetch("http://localhost:3004/api/vn/uusimokki", requestOptions)
+                .then(response => response.text())
+                .then(result => console.log(result))
+                .catch(error => console.log('error', error));
         }
-    }, [lisaa]);
+        if(uusimokki=="y"){
+            setUusimokki("");
+            fetchuusimokki();
+        }
+
+    }, [uusimokki]);
 
     const haeButtonclicked = () => {
         setHaettu_a_pvm(spvm);
@@ -288,6 +338,8 @@ const Mokit = () => {
                         <th>Osoite</th>
                         <th>Henkilömäärä</th>
                         <th>Hinta</th>
+                        <th>Kuvaus</th>
+                        <th>Varustelu</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -338,14 +390,25 @@ const Mokit = () => {
                     muokkaa ?
                         <div>
                             <h2>Muokkaa mökkiä {muokattava.mokki_id}</h2>
-                            <label>Postinro<input value={m_postinro} onChange={(e) => setM_postinro(e.target.value)}></input></label>
+                            
+                            <label>Postinro
+                            <select onChange={(e)=> setM_postinro(e.target.value)}>
+                                    {postinro.map((a, i) => {
+                                        return (
+                                            <option key={i} value={a.postinro}>{a.toimipaikka}, {a.postinro}</option>
+                                        )
+                                    })}
+
+                                </select>
+
+                            </label>
                             <label>Nimi<input value={m_nimi} onChange={(e) => setM_nimi(e.target.value)}></input></label>
                             <label>Osoite<input value={m_osoite} onChange={(e) => setM_osoite(e.target.value)}></input></label>
                             <label>Hinta<input value={m_hinta} onChange={(e) => setM_hinta(e.target.value)}></input></label>
                             <label>Kuvaus<input value={m_kuvaus} onChange={(e) => setM_kuvaus(e.target.value)}></input></label>
                             <label>Henkilömäärä<input value={m_hmaara} onChange={(e) => setM_hmaara(e.target.value)}></input></label>
                             <label>Varustelu<input value={m_varustelu} onChange={(e) => setM_varustelu(e.target.value)}></input></label>
-                            <button onClick={(e)=> setTallenna(!tallenna)}>Tallenna</button>
+                            <button onClick={(e) => setTallenna(!tallenna)}>Tallenna</button>
                             <button onClick={(e) => setMuokkaa("")}>Peruuta</button>
 
                         </div> : null
@@ -355,43 +418,43 @@ const Mokit = () => {
 
             <div>
                 {
-                    lisaa ? 
-                    <div>
-                        <br></br>
-                        <h2>Uuden mökin lisäys</h2>
-                        <label>Alue
-                            <select>
-                                {alueet.map((a,i)=>{
-                                    return(
-                                        <option key={i} value={a.alue_id}>{a.nimi},{a.alue_id}</option>
-                                    )
-                                })}
+                    lisaa ?
+                        <div>
+                            <br></br>
+                            <h2>Uuden mökin lisäys</h2>
+                            <label>Alue
+                                <select onChange={(e)=> setU_alue(e.target.value)}>
+                                    {alueet.map((a, i) => {
+                                        return (
+                                            <option key={i}  value={a.alue_id}>{a.nimi},{a.alue_id}</option>
+                                        )
+                                    })}
 
-                            </select>
-                        </label>
-                        <label>Postitoimipaikka
-                            <select>
-                                {postinro.map((a,i)=>{
-                                    return(
-                                        <option key={i} value = {a.postinro}>{a.toimipaikka}, {a.postinro}</option>
-                                    )
-                                })}
+                                </select>
+                            </label>
+                            <label>Postitoimipaikka
+                                <select onChange={(e)=> setU_postinro(e.target.value)}>
+                                    {postinro.map((a, i) => {
+                                        return (
+                                            <option key={i} value={a.postinro}>{a.toimipaikka}, {a.postinro}</option>
+                                        )
+                                    })}
 
-                            </select></label>
-                        <label>Nimi<input></input></label>
-                        <label>Osoite<input></input></label>
-                        <label>Hinta<input></input></label>
-                        <label>Kuvaus<input></input></label>
-                        <label>Henkilömäärä<input></input></label>
-                        <label>Varustelu<input></input></label>
-                        <button>Lisää</button>
-                        <button onClick={()=> setLisaa(false)}>Peruuta</button>
-                    </div>
-                     : 
-                    <div>
-                        <br></br>
-                        <button onClick={()=>setLisaa(true)}>Lisää uusi mökki</button>
-                    </div>
+                                </select></label>
+                            <label>Nimi<input value={u_nimi} onChange={(e)=> setU_nimi(e.target.value)}></input></label>
+                            <label>Osoite<input value={u_osoite} onChange={(e)=> setU_osoite(e.target.value)}></input></label>
+                            <label>Hinta<input value={u_hinta} onChange={(e)=> setU_hinta(e.target.value)}></input></label>
+                            <label>Kuvaus<input value={u_kuvaus} onChange={(e)=> setU_kuvaus(e.target.value)}></input></label>
+                            <label>Henkilömäärä<input value={u_hmaara} onChange={(e)=> setU_hmaara(e.target.value)}></input></label>
+                            <label>Varustelu<input value={u_varustelu} onChange={(e)=> setU_varustelu(e.target.value)}></input></label>
+                            <button onClick={()=> setUusimokki("y")}>Lisää</button>
+                            <button onClick={() => setLisaa(false)}>Peruuta</button>
+                        </div>
+                        :
+                        <div>
+                            <br></br>
+                            <button onClick={() => setLisaa(true)}>Lisää uusi mökki</button>
+                        </div>
                 }
             </div>
         </div>
