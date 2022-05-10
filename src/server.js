@@ -25,7 +25,7 @@ app.use(cors);
 var connection = mysql.createConnection({
     host: 'localhost',
     user: 'root',      // ÄLÄ KOSKAAN käytä root:n tunnusta tuotannossa
-    password: 'password',
+    password: 'root',
     database: 'vn',
     dateStrings: true
 });
@@ -357,6 +357,7 @@ app.get('/api/vn/lisaamokki', (request, response) => {
 
 });
 
+
 app.post('/api/vn/uusimokki', (req,res) => {
     
     console.log("/api/vn/uusimokki. BODY:", req.body);
@@ -551,6 +552,7 @@ app.post('/api/vn/uusiasiakas', (req,res) => {
         }
     });
 });
+
 
 
 app.get('*', function (req, res) {

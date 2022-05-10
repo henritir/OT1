@@ -178,7 +178,7 @@ const Mokit = () => {
                 redirect: 'follow'
             };
 
-            fetch("http://localhost:3004/api/vn/mokki/muokkaa/"+muokkaa, requestOptions)
+            await fetch("http://localhost:3004/api/vn/mokki/muokkaa/"+muokkaa, requestOptions)
                 .then(response => response.text())
                 .then(result => console.log(result))
                 .catch(error => console.log('error', error));
