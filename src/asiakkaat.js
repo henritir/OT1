@@ -19,9 +19,9 @@ const Asiakkaat = () => {
     const [u_etunimi, setU_etunimi] = useState("");
     const [u_sukunimi, setU_sukunimi] = useState("");
     const [u_lahiosoite, setU_lahiosoite] = useState("");
-    const [u_email, setU_email] = useState = ("");
-    const [u_puhelinnro, setU_puhelinnro] = ("");
-    const [uusiasiakas, setU_uusiasiakas] = ("");
+    const [u_email, setU_email] = useState ("");
+    const [u_puhelinnro, setU_puhelinnro] = useState ("");
+    const [uusiasiakas, setU_uusiasiakas] = useState ("");
     const [lisaa, setLisaa] = useState(false);
 
     useEffect(() => {
@@ -46,7 +46,7 @@ const Asiakkaat = () => {
             let response = await fetch("http://localhost:3004/api/vn/lisaamokki");
             let c = await response.json();
             set_postinro(c.postinro);
-            //setU_postinro(c.postinro[0].postinro);
+            setU_postinro(c.postinro[0].postinro);
             setM_postinro(c.postinro[0].postinro);
         }
         

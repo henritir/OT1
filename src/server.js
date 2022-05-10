@@ -357,7 +357,7 @@ app.get('/api/vn/lisaamokki', (request, response) => {
 
 });
 
-app.post('/api/vn/uusiasiakas', (req,res) => {
+app.post('/api/vn/uusimokki', (req,res) => {
     
     console.log("/api/vn/uusimokki. BODY:", req.body);
 
@@ -526,13 +526,13 @@ app.post('/api/vn/uusiasiakas', (req,res) => {
     
     // Tarkista kentät -> jos virheitä -> palauta validi statuscode ja res.json    
     
-    let query = "INSERT INTO asiakas (asiakas_id, postinro, etunimi, sukunimi, lahiosoite, email, puhelinnro) VALUES (?, ?, ?, ?, ?, ?, ?) ";
+    let query = "INSERT INTO asiakas (postinro, etunimi, sukunimi, lahiosoite, email, puhelinnro) VALUES (?, ?, ?, ?, ?, ?) ";
 
     // ÄLÄ TEE näin! SQL Injection!
     //let query = "INSERT INTO asiakastyyppi (LYHENNE, SELITE) VALUES ('" + lyhenne + "', '" + selite + "')";
 
     console.log("query:" + query);
-    connection.query(query, [alue, postinro, nimi, osoite, hinta, kuvaus, hmaara, varustelu], function(error, result, fields){
+    connection.query(query, [postinro,etunimi,sukunimi,lahiosoite,email,puhelinnro], function(error, result, fields){
     //connection.query(query,  function(error, result, fields){
 
         if ( error )
