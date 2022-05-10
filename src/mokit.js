@@ -43,7 +43,7 @@ const Mokit = () => {
 
     useEffect(() => {
         const fetchmokit = async () => {
-            let response = await fetch("http://localhost:3004/api/vn?");
+            let response = await fetch("http://localhost:3004/api/vn/mokkidata?");
             let c = await response.json();
             console.log(c);
             console.log(c.mokit);

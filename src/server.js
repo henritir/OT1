@@ -138,7 +138,7 @@ app.post('/api/vn/addpalvelu', (req,res) => {
 });
 
 // REST api -> GET 
-app.get('/api/vn', (request, response) => {
+app.get('/api/vn/mokkidata', (request, response) => {
 
     const query = "SELECT m.mokki_id, m.mokkinimi, m.postinro, p.toimipaikka as toimipaikka, m.katuosoite, m.henkilomaara, m.hinta, m.kuvaus, m.varustelu  FROM mokki m join posti p on p.postinro = m.postinro WHERE 1=1";
 
