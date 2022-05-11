@@ -700,6 +700,99 @@ app.get('*', function (req, res) {
     })
 });
 
+app.get("/api/vn/varaus", (request, response) => {
+  const query = "SELECT * from varaus";
+
+  let varaukset = [];
+  connection.query(query, function (error, result, fields) {
+    if (error) {
+      console.log("Virhe", error);
+      response.statusCode = 400;
+      response.json({ status: "NOT OK", msg: "Tekninen virhe!" });
+    } else {
+      console.log("asiakas loppuu");
+      response.statusCode = 200;
+      varaukset = result;
+      response.json(varaukset);
+    }
+  });
+});
+
+app.get("/api/vn/lasku", (request, response) => {
+  const query = "SELECT * from lasku ORDER BY summa ASC";
+
+  let laskut = [];
+  connection.query(query, function (error, result, fields) {
+    if (error) {
+      console.log("Virhe", error);
+      response.statusCode = 400;
+      response.json({ status: "NOT OK", msg: "Tekninen virhe!" });
+    } else {
+      console.log("asiakas loppuu");
+      response.statusCode = 200;
+      laskut = result;
+      response.json(laskut);
+    }
+  });
+});
+
+app.post("/api/vn/addlasku", (req, res) => {
+  let lasku_id = req.body.lasku_id;
+  let varaus_id = req.body.varaus_id;
+  let summa = req.body.summa;
+  let alv = req.body.alv;
+
+  let query =
+    "INSERT INTO lasku (lasku_id, varaus_id, summa, alv) VALUES (?, ?, ?, ?)";
+
+  console.log("query:" + query);
+  connection.query(
+    query,
+    [lasku_id, varaus_id, summa, alv],
+    function (error, result, fields) {
+      if (error) {
+        console.log("Virhe", error);
+        res.statusCode = 400;
+        res.json({ status: "NOT OK", msg: "Tekninen virhe!" });
+      } else {
+        console.log("R:", result);
+        res.statusCode = 201;
+        res.json({
+          lasku_id: lasku_id,
+          varaus_id: varaus_id,
+          summa: summa,
+          alv: alv,
+        });
+      }
+    }
+  );
+});
+
+app.delete("/api/vn/laskupoista/:lasku_id", function (req, res) {
+  const avain = req.params.lasku_id;
+
+  let query = "DELETE FROM LASKU WHERE lasku_id=? ";
+
+  connection.query(query, [avain], function (error, result, fields) {
+    if (error) {
+      console.log("Virhe", error);
+      res.status = 400;
+      res.json({ status: "NOT OK", message: error });
+    } else {
+      if (result.affectedRows > 0) {
+        res.statusCode = 204;
+        res.json();
+      } else {
+        res.statusCode = 404;
+        res.json({
+          status: "NOT OK",
+          message: `Poistettavaa asiakasta ${avain} ei löydy`,
+        });
+      }
+    }
+  });
+});
+
 console.log("Serveri tulille nyt");
 
 module.exports = app
