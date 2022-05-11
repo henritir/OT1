@@ -117,7 +117,7 @@ app.post('/api/vn/addpalvelu', (req,res) => {
     let alv = req.body.alv; 
     
     let query = "INSERT INTO palvelu (palvelu_id, alue_id, nimi, tyyppi, kuvaus, hinta, alv) VALUES (?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE ";
-    query = query + "alue_id = VALUES(alue_id),nimi = VALUES(nimi),tyyppi = VALUES(tyyppi),kuvaus = VALUES(kuvaus),hinta = VALUES(hinta),alv = VALUES(alv),";
+    query = query + "alue_id = VALUES(alue_id),nimi = VALUES(nimi),tyyppi = VALUES(tyyppi),kuvaus = VALUES(kuvaus),hinta = VALUES(hinta),alv = VALUES(alv)";
     console.log("query:" + query);
     connection.query(query, [palvelu_id, alue_id, nimi, tyyppi, kuvaus, hinta, alv], function(error, result, fields){
     //connection.query(query,  function(error, result, fields){
