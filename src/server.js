@@ -77,6 +77,30 @@ app.get('/api/vn/palvelu', (request, response) => {
     });
 
 });
+app.get('/api/vn/posti', (request, response) => {
+
+    const query = "SELECT postinro, toimipaikka from posti";
+
+
+    let posti = [];
+    console.log("alueet alkaa")
+    connection.query(query, function (error, result, fields) {
+        if (error) {
+            console.log("Virhe", error);
+            response.statusCode = 400;
+            response.json({ status: "NOT OK", msg: "Tekninen virhe!" });
+        }
+        else {
+            //console.log(":" , result);
+            console.log("asiakas loppuu")
+            response.statusCode = 200;
+            //response.json(result)
+            posti = result;
+            response.json(posti);
+        }
+    });
+
+});
 app.post('/api/vn/addalue', (req,res) => {
     
     console.log("/vn/addalue. BODY:", req.body);
@@ -136,7 +160,111 @@ app.post('/api/vn/addpalvelu', (req,res) => {
         }
     });
 });
+app.post('/api/vn/addposti', (req,res) => {
+    
+    console.log("/vn/addposti. BODY:", req.body);
 
+    let postinro = req.body.postinro;
+    let toimipaikka = req.body.toimipaikka; 
+    
+    let query = "INSERT INTO posti (postinro, toimipaikka) VALUES (?, ?) ON DUPLICATE KEY UPDATE toimipaikka = VALUES(toimipaikka)";
+
+    console.log("query:" + query);
+    connection.query(query, [postinro,toimipaikka], function(error, result, fields){
+    //connection.query(query,  function(error, result, fields){
+
+        if ( error )
+        {
+            console.log("Virhe", error);
+            res.statusCode = 400;
+            res.json({status : "NOT OK", msg : "Tekninen virhe!"});
+        }
+        else
+        {
+            console.log("R:" , result);
+            res.statusCode = 201;
+            res.json({postinro : postinro,  toimipaikka : toimipaikka})
+        }
+    });
+});
+app.delete('/api/vn/alue/poista/:alue_id', (req,res) => {
+
+    // HUOM! url:ssa oleva muuttuja löytyy params-muuttujasta, huomaa nimeäminen
+    let alue_id = req.params.alue_id;
+    
+    let query = "DELETE FROM alue where alue_id = ? ";
+
+    console.log("query:" + query);
+    connection.query(query, [alue_id], function(error, result, fields){
+        if ( error )
+        {
+            console.log("Virhe", error);
+            res.statusCode = 400;
+            res.json({status : "NOT OK", msg : "Tekninen virhe!"});
+        }
+        else
+        {
+            console.log("R:" , result);
+            res.statusCode = 204;   // 204 -> No content -> riittää palauttaa vain statuskoodi
+
+            // HUOM! Jotain pitää aina palauttaa, jotta node "lopettaa" tämän suorituksen.
+            // Jos ao. rivi puuttuu, jää kutsuja odottamaan että jotain palautuu api:sta
+            res.json()
+        }
+    });
+});
+app.delete('/api/vn/palvelu/poista/:palvelu_id', (req,res) => {
+
+    // HUOM! url:ssa oleva muuttuja löytyy params-muuttujasta, huomaa nimeäminen
+    let palvelu_id = req.params.palvelu_id;
+    
+    let query = "DELETE FROM palvelu where palvelu_id = ? ";
+
+    console.log("query:" + query);
+    connection.query(query, [palvelu_id], function(error, result, fields){
+        if ( error )
+        {
+            console.log("Virhe", error);
+            res.statusCode = 400;
+            res.json({status : "NOT OK", msg : "Tekninen virhe!"});
+        }
+        else
+        {
+            console.log("R:" , result);
+            res.statusCode = 204;   // 204 -> No content -> riittää palauttaa vain statuskoodi
+
+            // HUOM! Jotain pitää aina palauttaa, jotta node "lopettaa" tämän suorituksen.
+            // Jos ao. rivi puuttuu, jää kutsuja odottamaan että jotain palautuu api:sta
+            res.json()
+        }
+    });
+});
+app.delete('/api/vn/posti/poista/:postinro', (req,res) => {
+
+    // HUOM! url:ssa oleva muuttuja löytyy params-muuttujasta, huomaa nimeäminen
+    let postinro = req.params.postinro;
+    
+    let query = "DELETE FROM posti where postinro = ? ";
+
+    console.log("query:" + query);
+    connection.query(query, [postinro], function(error, result, fields){
+        if ( error )
+        {
+            console.log("Virhe", error);
+            res.statusCode = 400;
+            res.json({status : "NOT OK", msg : "Tekninen virhe!"});
+        }
+        else
+        {
+            console.log("R:" , result);
+            res.statusCode = 204;   // 204 -> No content -> riittää palauttaa vain statuskoodi
+
+            // HUOM! Jotain pitää aina palauttaa, jotta node "lopettaa" tämän suorituksen.
+            // Jos ao. rivi puuttuu, jää kutsuja odottamaan että jotain palautuu api:sta
+            res.json()
+        }
+    });
+});
 // REST api -> GET 
 app.get('/api/vn/mokkidata', (request, response) => {
 

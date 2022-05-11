@@ -12,6 +12,7 @@ const Palvelut = () => {
         const [serviceVat, setServiceVat] = useState("");
         const [haku, setHaku] = useState(true);
         const [lisaa, setLisaa] = useState("");
+        const [poista, setPoista] = useState("");
         useEffect( () => {
             console.log("useEffect happened ...");
     
@@ -84,6 +85,29 @@ const Palvelut = () => {
             
     
         }, [lisaa]);
+        useEffect(() => {
+            const fetchpoista = async () => {
+    
+                var requestOptions = {
+                    method: 'DELETE',
+                    redirect: 'follow'
+                };
+    
+                await fetch("http://localhost:3004/api/vn/palvelu/poista/" + poista, requestOptions)
+                    .then(response => response.text())
+                    .then(result => console.log(result))
+                    .catch(error => console.log('error', error));
+    
+                setHaku(!haku);
+                console.log(haku);
+            }
+    
+            if (poista != "") {
+                fetchpoista();
+            }
+    
+    
+        }, [poista]);
         const lisaaButtonClicked = () => {
             if(serviceId !== "" && serviceAreaId !== "" && serviceName !== "" && serviceType !== "" && serviceDescription !== "" && servicePrice !== "" && serviceVat !== "" ){
                 setLisaa("klikattu");
@@ -98,11 +122,13 @@ const Palvelut = () => {
                 <td>{s.kuvaus}</td>
                 <td>{s.hinta}</td>
                 <td>{s.alv}</td>
+                <td><button value={s.palvelu_id} onClick={(e) => setPoista(e.target.value)}>Poista</button></td>
                 </tr>
         })
         return(
             <div>
                 <div>
+                <h3>Palvelu</h3>
                 <label>Palvelu_ID(nro)
                 <input type="text" value={serviceId} onChange={(e) => setServiceId(e.target.value)}></input>
                 </label>
