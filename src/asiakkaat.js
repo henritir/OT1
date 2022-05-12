@@ -176,7 +176,7 @@ const Asiakkaat = () => {
     useEffect(() => {
         const fetchVarauksenpalvelut = async () => {
 
-            let response = await fetch("http://localhost:3004/api/vn/varauksenpalvelut" + V_palvelut);
+            let response = await fetch("http://localhost:3004/api/vn/varauksenpalvelut/" + V_palvelut);
             let c = await response.json();
             console.log(c);
         
@@ -274,10 +274,10 @@ const Asiakkaat = () => {
                 <table>
                 <thead>
                     <tr>
+                        <th>Varaus ID</th>
                         <th>Palvelu</th>
                         <th>Lukumäärä</th>
                         <th>Palvelu ID</th>
-                        <th>Asiakas ID</th>
                         <th>Hinta</th>
                         
                         
@@ -290,10 +290,10 @@ const Asiakkaat = () => {
                     {Y_palvelut.map((a, i) => {
                         return (
                             <tr key={i}>
+                                <td>{a.varaus_id}</td>
                                 <td>{a.nimi}</td>
                                 <td>{a.lkm}</td>
                                 <td>{a.palvelu_id}</td>
-                                <td>{a.asiakas_id}</td>
                                 <td>{a.hinta}</td>
                                 
                             </tr>
