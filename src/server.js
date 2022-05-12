@@ -787,6 +787,31 @@ app.get("/api/vn/varaus", (request, response) => {
   });
 });
 
+app.delete("/api/vn/varauspoista/:varaus_id", function (req, res) {
+  const avain = req.params.varaus_id;
+
+  let query = "DELETE FROM varaus WHERE varaus_id=? ";
+
+  connection.query(query, [avain], function (error, result, fields) {
+    if (error) {
+      console.log("Virhe", error);
+      res.status = 400;
+      res.json({ status: "NOT OK", message: error });
+    } else {
+      if (result.affectedRows > 0) {
+        res.statusCode = 204;
+        res.json();
+      } else {
+        res.statusCode = 404;
+        res.json({
+          status: "NOT OK",
+          message: `Poistettavaa asiakasta ${avain} ei löydy`,
+        });
+      }
+    }
+  });
+});
+
 app.get("/api/vn/lasku", (request, response) => {
   const query = "SELECT * from lasku ORDER BY summa ASC";
 
