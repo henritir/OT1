@@ -837,7 +837,9 @@ app.post("/api/vn/addlasku", (req, res) => {
   let alv = req.body.alv;
 
   let query =
-    "INSERT INTO lasku (lasku_id, varaus_id, summa, alv) VALUES (?, ?, ?, ?)";
+    "INSERT INTO lasku (lasku_id, varaus_id, summa, alv) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE ";
+
+    query = query + "varaus_id = VALUES(varaus_id), summa = VALUES(summa), alv = VALUES(alv)"
 
   console.log("query:" + query);
   connection.query(
