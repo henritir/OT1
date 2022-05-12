@@ -11,8 +11,6 @@ const Laskutus = () => {
   const [lisays, setLisays] = useState("");
   const [poista, setPoista] = useState("");
 
-
-
   useEffect(() => {
     const fetchpoista = async () => {
       var requestOptions = {
@@ -142,7 +140,7 @@ const Laskutus = () => {
           ></input>
         </label>
 
-        <button onClick={() => lisaaButtonClicked()}>Lisää</button>
+        <button onClick={() => lisaaButtonClicked()}>Lisää / Muokkaa</button>
       </div>
 
       <div>
