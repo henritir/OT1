@@ -23,6 +23,12 @@ const Asiakkaat = () => {
     const [u_puhelinnro, setU_puhelinnro] = useState ("");
     const [uusiasiakas, setU_uusiasiakas] = useState ("");
     const [lisaa, setLisaa] = useState(false);
+    const [varaukset, setVaraukset] = useState("");
+    const [A_varaukset, setA_varaukset] = useState([]);
+    const [V_palvelut, setV_palvelut] = useState("");
+    const [Y_palvelut, setY_palvelut] = useState([]);
+
+
 
     useEffect(() => {
         const fetchasiakas = async () => {
@@ -150,6 +156,41 @@ const Asiakkaat = () => {
     }, [uusiasiakas]);
 
 
+    useEffect(() => {
+        const fetchvaraukset = async () => {
+
+            let response = await fetch("http://localhost:3004/api/vn/varaukset" + varaukset);
+            let c = await response.json();
+            console.log(c);
+        
+            setA_varaukset(c);
+        
+        }
+
+        if (varaukset != "") {
+            fetchvaraukset();
+        }
+
+    }, [varaukset]);
+
+    useEffect(() => {
+        const fetchVarauksenpalvelut = async () => {
+
+            let response = await fetch("http://localhost:3004/api/vn/varauksenpalvelut" + V_palvelut);
+            let c = await response.json();
+            console.log(c);
+        
+            setY_palvelut(c);
+        
+        }
+
+        if (V_palvelut != "") {
+            fetchVarauksenpalvelut();
+        }
+
+    }, [V_palvelut]);
+
+
     return(
         <div>
             <h1>Asiakkaat</h1>
@@ -180,6 +221,7 @@ const Asiakkaat = () => {
                                 <td>{a.email}</td>
                                 <td>{a.puhelinnro}</td>
                                 <td><button value={a.asiakas_id} onClick={(e) => setMuokkaa(e.target.value)}>Muokkaa</button></td>
+                                <td><button value={a.asiakas_id} onClick={(e) => setVaraukset(e.target.value)}>Varaukset</button></td>
                             </tr>
                         )
                     })}
@@ -187,6 +229,88 @@ const Asiakkaat = () => {
                     
                 </tbody>
             </table>
+            <div>
+                {
+                varaukset ?
+                <div>
+                <table>
+                <thead>
+                    <tr>
+                        <th>Varaus ID</th>
+                        <th>Asiakas ID</th>
+                        <th>Mökki ID</th>
+                        <th>Varauksen pvm</th>
+                        <th>Vahvistuksen pvm</th>
+                        <th>Saapumispvm</th>
+                        <th>Lähtöpvm</th>
+                        
+                    </tr>
+                </thead>
+                
+                
+                <tbody>
+                    
+                    {A_varaukset.map((a, i) => {
+                        return (
+                            <tr key={i}>
+                                <td>{a.varaus_id}</td>
+                                <td>{a.asiakas_id}</td>
+                                <td>{a.mokki_mokki_id}</td>
+                                <td>{a.varattu_pvm}</td>
+                                <td>{a.vahvistus_pvm}</td>
+                                <td>{a.varattu_alkupvm}</td>
+                                <td>{a.varattu_loppupvm}</td>
+                                <td><button value={a.varaus_id} onClick={(e) => setV_palvelut(e.target.value)}>Varatut palvelut</button></td>
+                            </tr>
+                        )
+                    })}
+
+                    
+                </tbody>
+                </table>
+                <div>
+                {V_palvelut ?
+                
+                <table>
+                <thead>
+                    <tr>
+                        <th>Palvelu</th>
+                        <th>Lukumäärä</th>
+                        <th>Palvelu ID</th>
+                        <th>Asiakas ID</th>
+                        <th>Hinta</th>
+                        
+                        
+                    </tr>
+                </thead>
+                
+                
+                <tbody>
+                    
+                    {Y_palvelut.map((a, i) => {
+                        return (
+                            <tr key={i}>
+                                <td>{a.nimi}</td>
+                                <td>{a.lkm}</td>
+                                <td>{a.palvelu_id}</td>
+                                <td>{a.asiakas_id}</td>
+                                <td>{a.hinta}</td>
+                                
+                            </tr>
+                        )
+                    })}
+
+                    
+                </tbody>
+                </table>
+                :null
+                }
+                
+                </div>
+                </div>
+                :null
+            }
+            </div>
             <div>
                 {
                     muokkaa ?

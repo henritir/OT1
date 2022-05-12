@@ -743,24 +743,31 @@ app.post('/api/vn/uusiasiakas', (req,res) => {
     });
 });
 
+app.get('/api/vn/varaukset:asiakas_id', (request, response) => {
 
+    const query = "SELECT* FROM varaus WHERE asiakas_id = ?;";
 
-app.get('*', function (req, res) {
+    let asiakas_id = request.params.asiakas_id;
 
-    let query = "SELECT COUNT(*) as nimet FROM asiakas";
+    console.log("asiakas alkaa")
+    connection.query(query,[asiakas_id], function (error, result, fields) {
+        if (error) {
+            console.log("Virhe", error);
+            response.statusCode = 400;
+            response.json({ status: "NOT OK", msg: "Tekninen virhe!" });
+        }
+        else {
+            //console.log(":" , result);
+            console.log("asiakas loppuu")
+            response.statusCode = 200;
+            //response.json(result)
+            response.json(result);
+        }
+    });
 
-    connection.query(query, function (error, result, fields) {
-
-        console.log(result[0].nimet);
-
-        let maara = result[0].nimet;
-
-        console.log("R:", req.url);
-        res.statusCode = 404;
-        res.json({ message: "Osoite oli virheellinen:" + req.url, count: maara })
-
-    })
 });
+
+
 
 app.get("/api/vn/varaus", (request, response) => {
   const query = "SELECT * from varaus";
@@ -854,6 +861,25 @@ app.delete("/api/vn/laskupoista/:lasku_id", function (req, res) {
     }
   });
 });
+
+app.get('*', function (req, res) {
+
+    let query = "SELECT COUNT(*) as nimet FROM asiakas";
+
+    connection.query(query, function (error, result, fields) {
+
+        console.log(result[0].nimet);
+
+        let maara = result[0].nimet;
+
+        console.log("R:", req.url);
+        res.statusCode = 404;
+        res.json({ message: "Osoite oli virheellinen:" + req.url, count: maara })
+
+    })
+});
+
+
 
 console.log("Serveri tulille nyt");
 
