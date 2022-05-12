@@ -373,7 +373,7 @@ app.post('/api/vn/varaa', (req,res) => {
             res.statusCode = 201;
             // Palautetaan juuri lisätty asiakastyyppi kutsujalle! HUOM! Kaikissa REST-rajapinnoissa EI välttämättä tehdä näin
             // ELI ei palauteta välttämättä mitään!
-            res.json({asiakas_id : asiakas_id,  mokki_id: mokki_id, varaus_pvm : varaus_pvm, vahvistus : vahvistus, a_pvm :a_pvm, l_pvm : l_pvm})
+            res.json(result.insertId)
         }
     });
 });
@@ -551,6 +551,68 @@ app.delete('/api/vn/mokki/poista/:mokki_id', (req,res) => {
             // HUOM! Jotain pitää aina palauttaa, jotta node "lopettaa" tämän suorituksen.
             // Jos ao. rivi puuttuu, jää kutsuja odottamaan että jotain palautuu api:sta
             res.json()
+        }
+    });
+});
+
+app.get('/api/vn/saatavatpalvelut/:alue_id', (request, response) => {
+
+    const query = "SELECT* FROM palvelu where alue_id = ?";
+
+    let alue_id = request.params.alue_id;
+
+
+    console.log("alueet alkaa")
+    connection.query(query,[alue_id], function (error, result, fields) {
+        if (error) {
+            console.log("Virhe", error);
+            response.statusCode = 400;
+            response.json({ status: "NOT OK", msg: "Tekninen virhe!" });
+        }
+        else {
+            //console.log(":" , result);
+            console.log("asiakas loppuu")
+            response.statusCode = 200;
+            //response.json(result)
+            response.json(result);
+        }
+    });
+
+});
+
+app.post('/api/vn/palveluvaraus', (req,res) => {
+    
+    console.log("/api/vn/palveluvaraus. BODY:", req.body);
+
+    let varaus_id = req.body.varaus_id;
+    let palvelu_id = req.body.palvelu_id;
+    let lkm = req.body.lkm;
+
+    
+    // Tarkista kentät -> jos virheitä -> palauta validi statuscode ja res.json    
+    
+    let query = "INSERT INTO varauksen_palvelut (varaus_id, palvelu_id, lkm) VALUES (?, ?, ?) ";
+
+    // ÄLÄ TEE näin! SQL Injection!
+    //let query = "INSERT INTO asiakastyyppi (LYHENNE, SELITE) VALUES ('" + lyhenne + "', '" + selite + "')";
+
+    console.log("query:" + query);
+    connection.query(query, [varaus_id, palvelu_id, lkm], function(error, result, fields){
+    //connection.query(query,  function(error, result, fields){
+
+        if ( error )
+        {
+            console.log("Virhe", error);
+            res.statusCode = 400;
+            res.json({status : "NOT OK", msg : "Tekninen virhe!"});
+        }
+        else
+        {
+            console.log("R:" , result);
+            res.statusCode = 201;
+            // Palautetaan juuri lisätty asiakastyyppi kutsujalle! HUOM! Kaikissa REST-rajapinnoissa EI välttämättä tehdä näin
+            // ELI ei palauteta välttämättä mitään!
+            res.json({id: result.insertId, varaus_id : varaus_id,  palvelu_id:palvelu_id,lkm:lkm})
         }
     });
 });
